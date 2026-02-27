@@ -1,6 +1,7 @@
 # Track & Field Data Visualization
 
 Interactive visualization of historical athletics results based on the World Athletics all-time top lists dataset.
+Data source: [World Athletics Database (Kaggle)](https://www.kaggle.com/datasets/mexwell/world-athletics-database).
 
 🌐 **Live Demo**  
 👉 https://ricmoccia.github.io/track-and-field-viz/
