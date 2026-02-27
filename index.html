@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Athletics — Visual Information Seeking</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+</head>
+<body>
+    <!-- ═══ HEADER ═══ -->
+    <header id="header">
+        <div class="header-left">
+            <h1><span class="h1-thin">World</span> Athletics</h1>
+            <p class="tagline">All-Time Rankings · Visual Information Seeking · 1935–2023</p>
+        </div>
+        <div class="header-right">
+            <div class="mantra-badge">
+                <span class="mantra-step active" data-level="overview">Overview</span>
+                <span class="mantra-arrow">→</span>
+                <span class="mantra-step" data-level="filter">Filter</span>
+                <span class="mantra-arrow">→</span>
+                <span class="mantra-step" data-level="detail">Detail</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ GLOBAL FILTERS ═══ -->
+    <section id="filters-bar">
+        <div class="filter-row">
+            <div class="filter-chip-group" id="gender-chips">
+                <label class="filter-label">Gender</label>
+                <button class="chip active" data-value="all">All</button>
+                <button class="chip" data-value="men">Men</button>
+                <button class="chip" data-value="women">Women</button>
+            </div>
+            <div class="filter-chip-group" id="env-chips">
+                <label class="filter-label">Environment</label>
+                <button class="chip active" data-value="all">All</button>
+                <button class="chip" data-value="outdoor">Outdoor</button>
+                <button class="chip" data-value="indoor">Indoor</button>
+            </div>
+            <div class="filter-select-group">
+                <label class="filter-label">Event Type</label>
+                <select id="filter-event-type"><option value="all">All disciplines</option></select>
+            </div>
+            <div class="filter-select-group">
+                <label class="filter-label">Nation Focus</label>
+                <select id="filter-nation"><option value="all">All nations</option></select>
+            </div>
+            <div class="filter-brush-group">
+                <label class="filter-label">Period</label>
+                <div id="brush-container"></div>
+                <span class="brush-range" id="brush-range-label">1935 – 2023</span>
+            </div>
+        </div>
+        <!-- Stats -->
+        <div class="stats-row">
+            <span class="stat"><em id="s-records">—</em> records</span>
+            <span class="stat-sep">·</span>
+            <span class="stat"><em id="s-athletes">—</em> athletes</span>
+            <span class="stat-sep">·</span>
+            <span class="stat"><em id="s-nations">—</em> nations</span>
+            <span class="stat-sep">·</span>
+            <span class="stat"><em id="s-events">—</em> events</span>
+        </div>
+    </section>
+
+    <!-- ═══ MAIN GRID ═══ -->
+    <main id="grid">
+        <!-- VISTA 1: Bump Chart -->
+        <section class="panel panel-bump" id="panel-bump">
+            <div class="panel-chrome">
+                <h2>Nation Rankings Over Time</h2>
+                <p class="panel-sub">Bump chart — how national dominance shifts decade by decade</p>
+                <div class="task-tags">
+                    <!--<span class="task-tag">T1 Find Extrema</span>-->
+                    <!--<span class="task-tag">T5 Cluster</span>-->
+                </div>
+            </div>
+            <div class="chart-area" id="chart-bump"></div>
+        </section>
+
+        <!-- VISTA 2: Small Multiples -->
+        <section class="panel panel-multiples" id="panel-multiples">
+            <div class="panel-chrome">
+                <h2>Record Progression</h2>
+                <p class="panel-sub">Small multiples — step charts showing when records fall per discipline</p>
+                <div class="task-tags">
+                    <!--<span class="task-tag">T4 Compute</span>-->
+                    <!--<span class="task-tag">T6 Retrieve</span>-->
+                </div>
+            </div>
+            <div class="chart-area" id="chart-multiples"></div>
+        </section>
+
+        <!-- VISTA 3: Chord Diagram -->
+        <section class="panel panel-chord" id="panel-chord">
+            <div class="panel-chrome">
+                <h2>Geographic Dominance × Discipline</h2>
+                <p class="panel-sub">Chord diagram — which nations excel in which event types</p>
+                <div class="task-tags">
+                    <!--<span class="task-tag">T2 Distribution</span>-->
+                    <!--<span class="task-tag">T5 Cluster</span>-->
+                </div>
+            </div>
+            <div class="chart-area" id="chart-chord"></div>
+        </section>
+    </main>
+
+    <!-- ═══ DETAIL PANEL (slides in on demand — T6, T7) ═══ -->
+    <aside id="detail-panel" class="detail-closed">
+        <button id="detail-close">✕</button>
+        <div id="detail-content"></div>
+    </aside>
+
+    <!-- ═══ TOOLTIP ═══ -->
+    <div id="tooltip"></div>
+
+    <!-- ═══ SCRIPTS ═══ -->
+    <script src="js/state.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/bump.js"></script>
+    <script src="js/multiples.js"></script>
+    <script src="js/chord.js"></script>
+    <script src="js/detail.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
