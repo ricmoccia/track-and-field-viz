@@ -22,3 +22,6 @@ data/raw/
 *.zip
 *.7z
 *.parquet
+# da aggiungere al .gitignore esistente (il CSV da 86 MB e' gia' tracciato: serve git rm --cached o Git LFS)
+world-athletics_all-time-top-lists.csv
+

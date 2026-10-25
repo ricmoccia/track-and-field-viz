@@ -1,89 +1,87 @@
-// ═══ main.js — App Orchestration ═══
-// Shneiderman's Visual Information Seeking Mantra:
-// Overview first → Zoom & Filter → Details on Demand
+// Main application entry point
 
-(async function init() {
-    TT.init();
+document.addEventListener('DOMContentLoaded', () => {
+  Tooltip.init();
 
-    // Loading state
-    document.querySelectorAll('.chart-area').forEach(el => {
-        if (!el.children.length) el.innerHTML = '<div class="loading">Loading data…</div>';
+  // Load data
+  d3.csv('data.csv').then(raw => {
+    // Parse
+    raw.forEach(d => {
+      d.Rank = +d.Rank;
+      d.Year = +d.Year;
+      d.ResultsScore = +d.ResultsScore;
     });
 
-    // ── Load CSV ──
-    try {
-        State.raw = await d3.csv('world-athletics_all-time-top-lists.csv', d => {
-            const yr = parseYear(d.date);
-            return {
-                all_time_rank: +d.all_time_rank,
-                results_score: +d.results_score || 0,
-                event: d.event || '',
-                category: d.category || '',
-                event_rank: +d.event_rank,
-                mark: d.mark || '',
-                competitor: d.competitor || '',
-                nat: d.nat || '',
-                date_of_birth: d.date_of_birth || '',
-                date: d.date || '',
-                venue: d.venue || '',
-                age: +d.age || 0,
-                wind: d.wind || '',
-                year_of_birth: +d.year_of_birth || 0,
-                event_name: d.event_name || '',
-                event_type: d.event_type || '',
-                environment: d.environment || '',
-                age_category: d.age_category || '',
-                gender: d.gender || '',
-                _year: yr  // Pre-computed
-            };
-        });
+    State.data = raw;
 
-        console.log(`✓ Loaded ${State.raw.length} records`);
+    // Update header stats
+    const countries = new Set(raw.map(d => d.Nationality));
+    const athletes = new Set(raw.map(d => d.Competitor));
+    document.getElementById('stat-records').textContent = raw.length.toLocaleString();
+    document.getElementById('stat-countries').textContent = countries.size;
+    document.getElementById('stat-disciplines').textContent = new Set(raw.map(d => d.Discipline)).size;
 
-        // Compute year range from data
-        const years = State.raw.map(d => d._year).filter(Boolean);
-        State.yearRange = d3.extent(years);
+    // Initialize views
+    Heatmap.init();
+    Profile.init();
+    GenderGap.init();
 
-        // Initialize filters
-        initFilters();
+    // Subscribe to state changes
+    State.subscribe((changeType) => {
+      Heatmap.render();
+      Profile.render();
+      GenderGap.render();
+    });
 
-        // Subscribe views to state changes
-        State.subscribe(reason => {
-            if (reason === 'filter') {
-                updateStats();
-                drawBump(State.filtered);
-                drawMultiples(State.filtered);
-                drawChord(State.filtered);
-                updateMantra('filter');
-            }
-        });
+    // Setup controls
+    setupControls();
 
-        // Initial render (triggers filter)
-        State.applyFilters();
-        updateMantra('overview');
+  }).catch(err => {
+    console.error('Error loading data:', err);
+  });
+});
 
-        // Responsive redraw
-        window.addEventListener('resize', debounce(() => {
-            drawBump(State.filtered);
-            drawMultiples(State.filtered);
-            drawChord(State.filtered);
-        }, 300));
+function setupControls() {
+  // Gender toggle
+  const genderBtns = document.querySelectorAll('.gender-toggle button');
+  genderBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gender = btn.dataset.gender;
+      genderBtns.forEach(b => {
+        b.className = '';
+      });
+      if (gender === 'Men') btn.classList.add('active-men');
+      else if (gender === 'Women') btn.classList.add('active-women');
+      else btn.classList.add('active-both');
+      State.setGender(gender);
+    });
+  });
 
-    } catch (err) {
-        console.error('Failed to load data:', err);
-        document.querySelectorAll('.chart-area').forEach(el => {
-            el.innerHTML = `<div class="loading" style="color:var(--c-sprints)">
-                Error loading CSV — make sure <code style="color:var(--accent)">world-athletics_all-time-top-lists.csv</code> is in the same folder as index.html
-            </div>`;
-        });
+  // Top N slider
+  const slider = document.getElementById('topn-slider');
+  const display = document.getElementById('topn-display');
+  slider.addEventListener('input', () => {
+    const val = +slider.value;
+    display.textContent = `Top ${val}`;
+    State.setTopN(val);
+  });
+
+  // Sort
+  const sortSelect = document.getElementById('sort-select');
+  sortSelect.addEventListener('change', () => {
+    State.setSortBy(sortSelect.value);
+  });
+
+  // Discipline group
+  const groupSelect = document.getElementById('group-select');
+  groupSelect.addEventListener('change', () => {
+    State.setDisciplineGroup(groupSelect.value);
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      State.setSelectedCountry(null);
     }
-})();
-
-// ── Update stats ribbon ──
-function updateStats() {
-    const d = State.filtered;
-    animateNum('#s-records', d.length);
-    animateNum('#s-athletes', new Set(d.map(r => r.competitor)).size);
-    animateNum('#s-nations', new Set(d.map(r => r.nat)).size);
-    animateNum('#s-events', new Set(d.map(r => r.event)).size);
+  });
 }

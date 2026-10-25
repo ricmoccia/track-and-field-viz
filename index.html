@@ -1,130 +1,137 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Athletics — Visual Information Seeking</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Athletics — Visual Explorer</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 </head>
 <body>
-    <!-- ═══ HEADER ═══ -->
-    <header id="header">
-        <div class="header-left">
-            <h1><span class="h1-thin">World</span> Athletics</h1>
-            <p class="tagline">All-Time Rankings · Visual Information Seeking · 1935–2023</p>
-        </div>
-        <div class="header-right">
-            <div class="mantra-badge">
-                <span class="mantra-step active" data-level="overview">Overview</span>
-                <span class="mantra-arrow">→</span>
-                <span class="mantra-step" data-level="filter">Filter</span>
-                <span class="mantra-arrow">→</span>
-                <span class="mantra-step" data-level="detail">Detail</span>
-            </div>
-        </div>
-    </header>
 
-    <!-- ═══ GLOBAL FILTERS ═══ -->
-    <section id="filters-bar">
-        <div class="filter-row">
-            <div class="filter-chip-group" id="gender-chips">
-                <label class="filter-label">Gender</label>
-                <button class="chip active" data-value="all">All</button>
-                <button class="chip" data-value="men">Men</button>
-                <button class="chip" data-value="women">Women</button>
-            </div>
-            <div class="filter-chip-group" id="env-chips">
-                <label class="filter-label">Environment</label>
-                <button class="chip active" data-value="all">All</button>
-                <button class="chip" data-value="outdoor">Outdoor</button>
-                <button class="chip" data-value="indoor">Indoor</button>
-            </div>
-            <div class="filter-select-group">
-                <label class="filter-label">Event Type</label>
-                <select id="filter-event-type"><option value="all">All disciplines</option></select>
-            </div>
-            <div class="filter-select-group">
-                <label class="filter-label">Nation Focus</label>
-                <select id="filter-nation"><option value="all">All nations</option></select>
-            </div>
-            <div class="filter-brush-group">
-                <label class="filter-label">Period</label>
-                <div id="brush-container"></div>
-                <span class="brush-range" id="brush-range-label">1935 – 2023</span>
-            </div>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-top">
+      <h1>
+        <span>Information Visualization</span>
+        World Athletics Explorer
+      </h1>
+      <div class="header-stats">
+        <div class="header-stat">
+          <div class="number" id="stat-records">—</div>
+          <div class="label">Performance</div>
         </div>
-        <!-- Stats -->
-        <div class="stats-row">
-            <span class="stat"><em id="s-records">—</em> records</span>
-            <span class="stat-sep">·</span>
-            <span class="stat"><em id="s-athletes">—</em> athletes</span>
-            <span class="stat-sep">·</span>
-            <span class="stat"><em id="s-nations">—</em> nations</span>
-            <span class="stat-sep">·</span>
-            <span class="stat"><em id="s-events">—</em> events</span>
+        <div class="header-stat">
+          <div class="number" id="stat-countries">—</div>
+          <div class="label">Paesi</div>
         </div>
+        <div class="header-stat">
+          <div class="number" id="stat-disciplines">—</div>
+          <div class="label">Discipline</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTROLS -->
+  <nav class="controls">
+    <div class="control-group">
+      <label>Genere</label>
+      <div class="gender-toggle">
+        <button data-gender="Men" class="active-men">Uomini</button>
+        <button data-gender="Women">Donne</button>
+        <button data-gender="Both">Entrambi</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>Classifica</label>
+      <input type="range" id="topn-slider" min="10" max="500" step="10" value="100">
+      <span class="top-n-display" id="topn-display">Top 100</span>
+    </div>
+
+    <div class="control-group">
+      <label>Ordina per</label>
+      <select id="sort-select">
+        <option value="total">N° Atleti</option>
+        <option value="alpha">Alfabetico</option>
+        <option value="continent">Continente</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Discipline</label>
+      <select id="group-select">
+        <option value="All">Tutte</option>
+        <option value="Sprints">Sprint</option>
+        <option value="Middle Distance">Mezzofondo</option>
+        <option value="Long Distance">Fondo</option>
+        <option value="Hurdles">Ostacoli</option>
+        <option value="Jumps">Salti</option>
+        <option value="Throws">Lanci</option>
+      </select>
+    </div>
+  </nav>
+
+  <!-- MAIN DASHBOARD -->
+  <div class="main-layout">
+
+    <!-- LEFT: HEATMAP -->
+    <section class="panel heatmap-panel">
+      <div class="panel-title">Mappa Paese × Disciplina</div>
+      <div class="panel-subtitle">Numero di atleti per paese nelle top-list di ogni disciplina. Clicca su un paese per il profilo dettagliato.</div>
+      <div class="heatmap-container">
+        <svg id="heatmap-svg"></svg>
+      </div>
+      <div id="heatmap-legend"></div>
     </section>
 
-    <!-- ═══ MAIN GRID ═══ -->
-    <main id="grid">
-        <!-- VISTA 1: Bump Chart -->
-        <section class="panel panel-bump" id="panel-bump">
-            <div class="panel-chrome">
-                <h2>Nation Rankings Over Time</h2>
-                <p class="panel-sub">Bump chart — how national dominance shifts decade by decade</p>
-                <div class="task-tags">
-                    <!--<span class="task-tag">T1 Find Extrema</span>-->
-                    <!--<span class="task-tag">T5 Cluster</span>-->
-                </div>
-            </div>
-            <div class="chart-area" id="chart-bump"></div>
-        </section>
+    <!-- RIGHT TOP: COUNTRY PROFILE -->
+    <section class="panel profile-panel">
+      <div class="panel-title">Profilo Nazionale</div>
+      <div class="panel-subtitle">Distribuzione degli atleti per disciplina nel paese selezionato</div>
 
-        <!-- VISTA 2: Small Multiples -->
-        <section class="panel panel-multiples" id="panel-multiples">
-            <div class="panel-chrome">
-                <h2>Record Progression</h2>
-                <p class="panel-sub">Small multiples — step charts showing when records fall per discipline</p>
-                <div class="task-tags">
-                    <!--<span class="task-tag">T4 Compute</span>-->
-                    <!--<span class="task-tag">T6 Retrieve</span>-->
-                </div>
-            </div>
-            <div class="chart-area" id="chart-multiples"></div>
-        </section>
+      <div id="country-badge" class="country-badge" style="display:none;">
+        <span class="flag">🏳️</span>
+        <span class="name">—</span>
+        <span class="code">—</span>
+      </div>
 
-        <!-- VISTA 3: Chord Diagram -->
-        <section class="panel panel-chord" id="panel-chord">
-            <div class="panel-chrome">
-                <h2>Geographic Dominance × Discipline</h2>
-                <p class="panel-sub">Chord diagram — which nations excel in which event types</p>
-                <div class="task-tags">
-                    <!--<span class="task-tag">T2 Distribution</span>-->
-                    <!--<span class="task-tag">T5 Cluster</span>-->
-                </div>
-            </div>
-            <div class="chart-area" id="chart-chord"></div>
-        </section>
-    </main>
+      <div id="profile-placeholder" class="profile-placeholder">
+        <div>
+          <span class="icon">👆</span>
+          Seleziona un paese dalla heatmap<br>per visualizzare il suo profilo atletico.<br>
+          <small style="color:#556380;">Premi ESC per deselezionare</small>
+        </div>
+      </div>
 
-    <!-- ═══ DETAIL PANEL (slides in on demand — T6, T7) ═══ -->
-    <aside id="detail-panel" class="detail-closed">
-        <button id="detail-close">✕</button>
-        <div id="detail-content"></div>
-    </aside>
+      <div id="profile-container">
+        <svg id="profile-svg"></svg>
+      </div>
+    </section>
 
-    <!-- ═══ TOOLTIP ═══ -->
-    <div id="tooltip"></div>
+    <!-- RIGHT BOTTOM: GENDER GAP -->
+    <section class="panel gendergap-panel">
+      <div class="panel-title">Gender Gap</div>
+      <div class="panel-subtitle" id="gendergap-subtitle">Confronto presenze maschili vs. femminili per disciplina — vista globale</div>
 
-    <!-- ═══ SCRIPTS ═══ -->
-    <script src="js/state.js"></script>
-    <script src="js/filters.js"></script>
-    <script src="js/bump.js"></script>
-    <script src="js/multiples.js"></script>
-    <script src="js/chord.js"></script>
-    <script src="js/detail.js"></script>
-    <script src="js/main.js"></script>
+      <div id="gendergap-container">
+        <svg id="gendergap-svg"></svg>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- TOOLTIP -->
+  <div class="tooltip" id="tooltip"></div>
+
+  <!-- SCRIPTS -->
+  <script src="js/state.js"></script>
+  <script src="js/tooltip.js"></script>
+  <script src="js/heatmap.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/gendergap.js"></script>
+  <script src="js/main.js"></script>
+
 </body>
 </html>
